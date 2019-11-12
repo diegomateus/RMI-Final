@@ -204,6 +204,8 @@ public class Servidor extends UnicastRemoteObject implements InterfazServidor {
 		Empresa e = (Empresa) t.getObjeto();
 		
 		for (Oferta o: e.getOfertas()) {
+			System.out.println("Cargo: "  + o.getCargo());
+			System.out.println("Sector: " + o.getSectorEmpresa());
 			this.ofertas.add(o);
 		}
 	}

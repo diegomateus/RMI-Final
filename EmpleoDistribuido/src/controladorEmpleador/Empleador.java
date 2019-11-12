@@ -23,19 +23,21 @@ public class Empleador {
 		VistaEmpleador vista = new VistaEmpleador();
 		vista.setVisible(true);
 		
-		for (Empresa e : leerEmpleadores()) {
-			Thread.sleep(1000);
-			ThreadEmpleador t = new ThreadEmpleador(vista, e);
-			Thread s = new Thread(t);
-			s.start();
-			System.out.println(e.getNombre());
-			System.out.println(e.getNIT());
-
-			for (Oferta o : e.getOfertas()) {
-				System.out.println("Oferta");
-				System.out.println("\tCargo: " + o.getCargo() + " Experiencia: " + o.getExperiencia() + " Salario: "
-						+ o.getSalarioOfrecido() + " Sector: " + o.getSectorEmpresa() + " Nivel: "
-						+ o.getNivelEstudio());
+		while (true) {
+			for (Empresa e : leerEmpleadores()) {
+				Thread.sleep(1000);
+				ThreadEmpleador t = new ThreadEmpleador(vista, e);
+				Thread s = new Thread(t);
+				s.start();
+				System.out.println(e.getNombre());
+				System.out.println(e.getNIT());
+	
+				for (Oferta o : e.getOfertas()) {
+					System.out.println("Oferta");
+					System.out.println("\tCargo: " + o.getCargo() + " Experiencia: " + o.getExperiencia() + " Salario: "
+							+ o.getSalarioOfrecido() + " Sector: " + o.getSectorEmpresa() + " Nivel: "
+							+ o.getNivelEstudio());
+				}
 			}
 		}
 	}
