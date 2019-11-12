@@ -15,21 +15,21 @@ import modelo.Candidato;
 import modelo.Empresa;
 import modelo.Oferta;
 
-public class Coordinador extends UnicastRemoteObject implements InterfazCandidato, InterfazEmpleador{
+public class Coordinador extends UnicastRemoteObject implements InterfazCandidato, InterfazEmpleador {
 
-	private ArrayList< InterfazServidor >Participantes;
-	private ArrayList< Transaccion >transacciones;
-	
-	public Coordinador() throws RemoteException{
+	private ArrayList<InterfazServidor> Participantes;
+	private ArrayList<Transaccion> transacciones;
+
+	public Coordinador() throws RemoteException {
 		super();
 		try {
 			this.Participantes = new ArrayList<>();
 			this.transacciones = new ArrayList<>();
-			
-			Participantes.add( (InterfazServidor) Naming.lookup("//127.0.0.1:1500/Server") );
-			//Participantes.add( (InterfazServidor) Naming.lookup("127.0.0.1:1500/Server2") );
-			
-			
+
+			Participantes.add((InterfazServidor) Naming.lookup("//127.0.0.1:1500/Server"));
+			// Participantes.add( (InterfazServidor) Naming.lookup("127.0.0.1:1500/Server2")
+			// );
+
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -41,20 +41,23 @@ public class Coordinador extends UnicastRemoteObject implements InterfazCandidat
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void main(String args[]) {
 		// Create and install a security manager
 		if (System.getSecurityManager() == null) {
 			System.setSecurityManager(new RMISecurityManager());
 		}
 		try {
-			
+
 			Coordinador coordinador = new Coordinador();
-			
+
 			// Bind this object instance to the name "HelloServer"
 			Naming.rebind("//127.0.0.1:1500/CandidatoServer", coordinador);
-
 			System.out.println("CandidatoServer bound in registry");
+			
+			Naming.rebind("//127.0.0.1:1500/EmpleadorServer", coordinador);
+			System.out.println("EmpleadorServer bound in registry");
+			
 		} catch (Exception e) {
 			System.out.println("HelloImpl err: " + e.getMessage());
 			e.printStackTrace();
@@ -69,48 +72,48 @@ public class Coordinador extends UnicastRemoteObject implements InterfazCandidat
 	}
 
 	@Override
-	public Oferta obtenerOferta(Candidato candidato ) throws RemoteException {
+	public Oferta obtenerOferta(Candidato candidato) throws RemoteException {
 		// TODO Auto-generated method stub
-		
+
 		System.out.println("Llego al server ");
 		Oferta oferta = new Oferta();
 		oferta.setCargo("NO LLEGO");
-		Transaccion t = new Transaccion( candidato );
-		synchronized ( this.transacciones ) {
-			this.transacciones.add( t );
+		Transaccion t = new Transaccion(candidato);
+		synchronized (this.transacciones) {
+			this.transacciones.add(t);
 			this.transacciones.sort(null);
 		}
-		
+
 		boolean consumar = false;
-		while( !consumar ){
-			//Verificar si algun participante puede consumar
-			for( InterfazServidor rmi : this.Participantes ){
-				
-				if( rmi.puedeConsumarCita(t) > 0 ){
-					synchronized ( this.transacciones ) {
-						//Verificar que la transaccion que desea hacer commit sea la siguiente en la lista 
-						if( t.getTimeStamp().equals( this.transacciones.get(0).getTimeStamp() )){
-							oferta = rmi.consumarCita( t );
+		while (!consumar) {
+			// Verificar si algun participante puede consumar
+			for (InterfazServidor rmi : this.Participantes) {
+
+				if (rmi.puedeConsumarCita(t) > 0) {
+					synchronized (this.transacciones) {
+						// Verificar que la transaccion que desea hacer commit sea la siguiente en la
+						// lista
+						if (t.getTimeStamp().equals(this.transacciones.get(0).getTimeStamp())) {
+							oferta = rmi.consumarCita(t);
 							this.transacciones.remove(0);
 							consumar = true;
 							this.transacciones.notifyAll();
-						}else{
+						} else {
 							try {
 								this.transacciones.wait();
 							} catch (InterruptedException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
-							
+
 						}
 					}
 				}
-				
 			}
-			//System.out.println("Consumar:" + consumar + "Oferta:" + oferta);
-			
+			// System.out.println("Consumar:" + consumar + "Oferta:" + oferta);
+
 		}
-		
+
 		return oferta;
 	}
 
@@ -120,10 +123,54 @@ public class Coordinador extends UnicastRemoteObject implements InterfazCandidat
 		return true;
 	}
 
-	
 	@Override
 	public String asignarCitas(Empresa e) throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public String iniciarTransaccion(String empresa) throws RemoteException {
+		// TODO Auto-generated method stub
+		System.out.println(empresa);
+		return empresa;
+	}
+
+	@Override
+	public boolean finalizarTransaccion(String t) throws RemoteException {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public void publicarOferta(Empresa e) throws RemoteException {
+		// TODO Auto-generated method stub
+		System.out.println("Va a publicar ");
+		Transaccion t = new Transaccion(e);
+
+		synchronized (this.transacciones) {
+			this.transacciones.add(t);
+			this.transacciones.sort(null);
+		}
+
+		for (InterfazServidor i : Participantes) {
+			synchronized (this.transacciones) {
+				// Verificar que la transaccion que desea hacer commit sea la siguiente en la
+				// lista
+				if (t.getTimeStamp().equals(this.transacciones.get(0).getTimeStamp())) {
+					i.cargarOfertas(t);
+					this.transacciones.remove(0);
+					this.transacciones.notifyAll();
+				} else {
+					try {
+						this.transacciones.wait();
+					} catch (InterruptedException ex) {
+						// TODO Auto-generated catch block
+						ex.printStackTrace();
+					}
+
+				}
+			}
+		}
 	}
 }

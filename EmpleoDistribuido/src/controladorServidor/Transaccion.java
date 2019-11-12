@@ -42,6 +42,4 @@ public class Transaccion implements Serializable, Comparable< Transaccion >{
 	public void setObjeto(Object objeto) {
 		this.objeto = objeto;
 	}
-	
-	
 }

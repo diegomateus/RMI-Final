@@ -16,13 +16,29 @@ import java.util.ArrayList;
 public class Empresa implements Serializable{
     
     private String nombre;
+    private String nit;
     private ArrayList< Oferta > ofertas;
     private LocalDateTime timeStampLectura;
     private LocalDateTime timeStampEscritura;
     private ArrayList< Empresa >tentativas;
     private Empresa Dseleccionada;
 
-    public String getNombre() {
+    
+    /**
+	 * @param nombre
+	 * @param nIT
+	 */
+	public Empresa(String nombre, String nIT, LocalDateTime timeStampLectura, LocalDateTime timeStampEscritura) {
+		super();
+		this.nombre = nombre;
+		this.nit = nIT;
+		this.timeStampEscritura = timeStampEscritura;
+		this.timeStampLectura = timeStampLectura;
+		ofertas = new ArrayList<Oferta>();
+		tentativas = new ArrayList<Empresa>();
+	}
+
+	public String getNombre() {
         return nombre;
     }
 
@@ -69,6 +85,22 @@ public class Empresa implements Serializable{
 	public void setOfertas(ArrayList< Oferta > ofertas) {
 		this.ofertas = ofertas;
 	}
-    
 
+	/**
+	 * @return the nIT
+	 */
+	public String getNIT() {
+		return nit;
+	}
+
+	/**
+	 * @param nIT the nIT to set
+	 */
+	public void setNIT(String nIT) {
+		this.nit = nIT;
+	}
+	
+	public void agregarOferta (Oferta o) {
+		this.ofertas.add(o);
+	}
 }

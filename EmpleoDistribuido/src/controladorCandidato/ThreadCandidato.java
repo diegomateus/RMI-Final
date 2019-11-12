@@ -62,10 +62,7 @@ public class ThreadCandidato implements Runnable {
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
-		
-						
+		}					
 		
 	}
 

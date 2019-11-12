@@ -11,7 +11,7 @@ public interface InterfazServidor extends Remote {
 	public int puedeConsumarCita( Transaccion t) throws RemoteException;
 	public Oferta consumarCita( Transaccion t) throws RemoteException;
 	public boolean abortar( Transaccion t) throws RemoteException;
-	
+	public void cargarOfertas(Transaccion t) throws RemoteException;
 	
 	
 }

@@ -19,8 +19,6 @@ public class Servidor extends UnicastRemoteObject implements InterfazServidor {
 	protected Servidor() throws RemoteException {
 		super();
 		this.ofertas = new ArrayList<>();
-		this.ofertas.add( new Oferta("administrador", 10, 1000000, "comercio", Estudio.PRIMARIA, LocalDateTime.now(), LocalDateTime.now() ) );
-		this.ofertas.add( new Oferta("ingeniero", 5, 1000000, "manufactura", Estudio.PRIMARIA, LocalDateTime.now(), LocalDateTime.now() ) );
 		
 		// TODO Auto-generated constructor stub
 	}
@@ -30,18 +28,21 @@ public class Servidor extends UnicastRemoteObject implements InterfazServidor {
 	public static void main(String args[]) {
 		// Create and install a security manager
 		if (System.getSecurityManager() == null) {
-			System.setSecurityManager(new RMISecurityManager());
+			System.setSecurityManager(new SecurityManager());
 		}
 		try {
-
+			System.out.println("Entra");
 			Servidor servidor = new Servidor();
-
+			
+			System.out.println("Entra --> 1");
 			// Bind this object instance to the name "HelloServer"
 			Naming.rebind("//127.0.0.1:1500/Server", servidor);
+			
+			System.out.println("Entra --> 2");
 
 			System.out.println("Server bound in registry");
 		} catch (Exception e) {
-			System.out.println("HelloImpl err: " + e.getMessage());
+			System.out.println("Server err: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -196,6 +197,15 @@ public class Servidor extends UnicastRemoteObject implements InterfazServidor {
 		}
 		
 		return puntaje;
+	}
+	
+	@Override
+	public void cargarOfertas(Transaccion t) {
+		Empresa e = (Empresa) t.getObjeto();
+		
+		for (Oferta o: e.getOfertas()) {
+			this.ofertas.add(o);
+		}
 	}
 
 }

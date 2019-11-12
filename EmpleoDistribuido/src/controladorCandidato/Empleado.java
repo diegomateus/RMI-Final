@@ -29,8 +29,7 @@ public class Empleado {
 						Thread.sleep( c.getTimeStamp()*1000 );
 						ThreadCandidato tcandidato = new ThreadCandidato(GUI, c);
 						Thread t = new Thread( tcandidato );
-						t.start();
-					
+						t.start();	
 				}
 			}
 			
